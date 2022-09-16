@@ -180,3 +180,12 @@ movl $45, %eax     // in Linux, 45 indicates request for more heap memory
 movl $1024, %ebx   // request is for 1024 bytes
 int  $128          // causes trap
 ```
+
+## Summary of Exception Classes
+
+| Class           | Cause                                       | Asynch/Sync | Return Behavior                       |
+| --------------- | ------------------------------------------- | ----------- | ------------------------------------- |
+| Interrupt       | Signal from I/O device                      | Ansynch     | Return to next instruction            | 
+| Fault           | Unintentional and (maybe) recoverable error | Sync        | (Maybe) return to current instruction |
+| Abort           | Unintentional and non-recoverable error     | Sync        | Do not return                         |
+| Trap / Sys Call | Intential from within user application      | Sync        | Return to next instruction            |
