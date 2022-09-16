@@ -85,3 +85,79 @@ main () {
 4. Signal process
 
 ## Abort
+
+Aborts are severe and unrecoverable errors
+
+- Examples: parity error, machine check, divide by zero
+- Aborts current program and hands control over to the OS
+- This is the way for the OS to put essential error checking
+- Also, an excellent way to make OS resilient when applications are failing or crashing
+
+1. Fatal hardware error occurs (Application Program)
+2. Control passes to handler (tp Exception Handler)
+3. Handler runs (Exception Gandler)
+4. Handler aborts execution (Exception Handler)
+
+## Traps or System Calls
+
+A trap is a synchronous interrupt *intentionally* triggered by an exception in a user process to perform an action
+
+Exception conditions like invalid memory access, division by zero, or a breakpoint can trigger a trap in an OS
+
+Examples:
+- Application program requests more heap memory
+- Application program requests I/O
+
+Traps provide a function-call-like interface between application and OS
+
+1. Application program traps (Application Program)
+2. Control passes to handler (to Exception Handler)
+3. Handler runs (Exception Handler)
+4. Handler returns control to *next* instruction (to Application Program)
+
+### Types of System Calls
+
+**Process Control**
+- load
+- execute
+- end, abort
+- create process
+- terminate process
+- get/set process attributes
+- wait for time, wiat event, signal event
+- allocate, free memory
+
+**File Management**
+- create file, delete file
+- open, close
+- read, write, reposition
+- get/set file attributes
+
+**Device Management**
+- request device, release device
+- read, write, reposition
+- get/set device attributes
+- logically attach or detach devices
+
+**Information Maintenance**
+- get/set time or date
+- get/set system data
+- get/set process, file, or device attributes
+
+**Communication**
+- create, delete communication connection
+- send, receive messages
+- transfer status information
+- attach or detach remote devices
+
+### System Calls: Example
+
+```c++
+#include <unistd.h>
+
+int main(void) {
+    write(1, "Hello, world\n", 13);
+    return 0;
+}
+```
+
