@@ -1,5 +1,4 @@
 # Exceptions
-<br />
 
 ## Exception Control Flow
 
