@@ -161,3 +161,22 @@ int main(void) {
 }
 ```
 
+**Making System Calls in 32-but Linux:**
+1. Load system call number in register `eax`
+2. Load arguments to system call in registers `ebx`, `ecx`, `edx`, `esi`, `edi`, `ebp`
+3. Invoke software interrupt: `int 0x80`
+
+Returned values are stored in `eax`
+
+## Traps in Intel Processors
+
+To execute a trap, application program should:
+- Place number in `eax` register indicating desired functionality
+- Place parameters in `ebx`, `ecx`, `edx` registers
+- Execute assembly language instruction `int 128`
+
+```
+movl $45, %eax     // in Linux, 45 indicates request for more heap memory
+movl $1024, %ebx   // request is for 1024 bytes
+int  $128          // causes trap
+```
