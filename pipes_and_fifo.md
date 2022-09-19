@@ -238,3 +238,126 @@ The `dup2()` system call creates a copy of a file descriptor
 `int dup2(int oldfd, int newfd)`
 - **oldfd:** old file descriptor
 - **newfd** new filer descriptor which is sued by `dup2()` to create a copy
+
+## Limitations of Pipes
+
+1. Unix pipes are unidirectional channels from one process to another, and cannot be turned into bidirectional or multicast channels. This limitation makes pipes useless for complex inter-process communication.
+2. The pipe system call creates a single "read end" and a single "write end". Bidirectional communication can be simulated using a pair of pipes, but inconsistent buffering between both pipes can lead to a deadlock, especially if we only have control of the program on one end of the pipe.
+3. Pipes can only be shared between processes with a common ancestor.
+4. This restriction prevents many useful forms of inter-process communication from being layered on top of pipes.
+5. Pipes are a form of combination, there is no way for a process to name a pipe that it (or an ancestor) did not directly create via pipe.
+6. Pipes cannot be used for clients to connect to long-running services.
+7. Processes cannot open additional pipes to other processes that they already have a pipe to.
+
+## FIFO (Named Pipe)
+
+FIFO is a **first-in, first-out** message-passing IPC in which bytes are sent and received as **unstructured streams**. It is also known as a named pipe.
+
+The named pipe is a POSIX pipe in contrast to anonymous pipes created with the `pipe()` system call.
+
+FIFOs work by attaching a filename to the pipe. Once created, any process (with correct access permissions) can access the FIFO by calling `open()` on the associated filename.
+
+Once the processes have opened the file, they can use the standard `read()` and `write()` functions to communicate.
+
+In Linux, we can create a FIFO with the commands `mknod` (using the letter "p" to indicate the FIFO type) or `mkfifo`.
+
+`int mkfifo (const char *pathname, mode_t mode)`
+
+A common use for FIFOs is to create **client/server applications** on the same machine.
+
+To get a report on potentially bad files, we run a client application that uses a FIFO to connect to the server.
+- The server and the client application are distinct processess running in seperate programs (not forked)
+- Instead, both processes use the name attached to the FIFO to set up the communication
+
+### FIFO (Named Pipe) Example
+
+The server should print hello whenever the client writes a non-zero value to a file. The server should shut down when the client writes a zero.
+
+```c++
+int main(int argc, char const *argv[]) {
+    // create the FIFO
+    const char *FIFO = "/tmp/MY_FIFO";
+    assert(mkfifo(FIFO, S_IRUSR | S_IWUSR) == 0);
+
+    // open the FIFO, delete FIFO if open() fails
+    int fifo = open(FIFO, O_RDONLY);
+    if (fifo == -1) {
+        fprintf(stderr, "Failed to open FIFO\n");
+        unlink(FIFO);
+        return 1;
+    }
+
+    // main server loop
+    while (1) {
+        int req = 0;
+        if (read(fifo, &req, sizeof(int)) != sizeof(int)) {
+            continue;
+        }
+
+        // if we read a 0, quit, otherwise print hello
+        if (req == 0) {
+            break;
+        }
+        printf("hello\n");
+    }
+
+    // read a 0 from the FIFO, so close and delete the FIFO
+    close(fifo);
+    printf("Deleting FIFO\n");
+    unlink(FIFO);
+
+    return 0;
+}
+```
+
+This code implements the server
+- The server prints "hello" when a client writes a non-zero value to a file and shuts down when the client writes a zero
+- The server starts by creating the FIFO with read and write permissions for the current user
+- The server opens the FIFO in read-only mode and enters the listening loop
+- Once the server reads a value of 0 from the FIFO, it exits the loop, then closes and deletes the FIFO
+
+```c++
+int main(int argc, char const *argv[]) {
+    const char *FIFO = "/tmp/MY_FIFO";
+
+    // use the file name to open the FIFO for writing
+    int fifo = open(FIFO, O_WRONLY);
+    assert(fifo != -1);
+
+    // open the FIFO 6 times, writing an int each time
+    for (int index = 5; index >= 0; index--) {
+        // write 5, 4, 3, 2, 1, 0 into the FIFO
+        int msg = index;
+        write(fifo, &msg, sizeof(int));
+
+        // add a slight delay each time
+        sleep(1);
+    }
+
+    // close the FIFO
+    close(fifo);
+
+    return 0;
+}
+```
+```
+$ fifo % ./server
+hello
+hello
+hello
+hello
+hello
+Deleting FIFO
+```
+
+This code implements the client
+- This client opens the FIFO, then writes a sequence of integers (5 down to 0) into the FIFO
+- Note that anything the client writes after the 0 would be thrown away, as the server would delete the FIFO at that point
+
+## Limitations of FIFO
+
+- Although FIFOs use standard file I/O functions (e.g., `open()`, `read()`, and `write()`), they are not regular files.
+- Once data is read from a FIFO, the data is discarded and cannot be read again.
+- With a regular file, multiple processes can read the same data from the same file. Regular files store data persistently, but FIFOs do not.
+- FIFOs cannot be used for boradcasting a single message to multiple recipients; only once process can read the data.
+- FIFOs (like pipes) are not suitable for bidirectional communication; if a process writes into the FIFO then immediately tries to read a response, it may read its own message.
