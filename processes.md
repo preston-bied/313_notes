@@ -36,17 +36,17 @@ The execution of the process that is present in the running state is suspended b
 
 `$ ps`
 
-**PID:** the unique process ID
-**TTY:** the terminal type you're logged into
-**TIME:** the total amount of CPU usage
-**CMD:** the name of the commands that launched the process
+- **PID:** the unique process ID
+- **TTY:** the terminal type you're logged into
+- **TIME:** the total amount of CPU usage
+- **CMD:** the name of the commands that launched the process
 
 `$ ps aux`
 
-**ps:** the process status command
-**a:** displays information about other users' processes as well as your own
-**u:** displays the processes belonging to the specified usernames
-**x** includes processes that do not have a controlling terminal
+- **ps:** the process status command
+- **a:** displays information about other users' processes as well as your own
+- **u:** displays the processes belonging to the specified usernames
+- **x** includes processes that do not have a controlling terminal
 
 ## When is a Process Created?
 
