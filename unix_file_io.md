@@ -11,4 +11,5 @@ Language run-time systems provide higher-level facilities for performing I/O (e.
 
 ## UNIX Files
 
-A UNIX file is a sequence of m bytes B<sub>0</sub>
+A UNIX file is a sequence of m bytes B<sub>0</sub>, B<sub>1</sub>, ..., B<sub>k</sub>, ..., B<sub>m-1</sub>.
+
