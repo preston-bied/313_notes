@@ -87,6 +87,72 @@ void main(void) {
 
 ### Open, Read, Close
 
+Read is *stateful* with a *cursor*.
+
+Reading the same directory again gives back the next file in the directory.
+
+```c++
+#include <dirent.h>
+
+int main(int argc, char* argv[]) {
+    struct dirent* direntp;
+    DIR* dirp = opendir(argv[1]);
+    
+    while ((direntp = readdir(dirp)) != NULL) {
+        printf("%s\n", direntp->d_name);
+    }
+
+    closedir(dirp);
+    return 0;
+}
+```
+
+### Traversal
+
+```c++
+#include <dirent.h>
+
+DIR* opendir(const char* dirname);
+/* returns pointer to directory object */
+
+struct direct* readdir(DIR* dirp);
+/* read successive entries in directory 'dirp' */
+
+int closedir(DIR* dirp);
+/* close directory stream */
+
+void rewinddir(DIR* dirp);
+/* reposition pointer to beginning of directory */
+```
+
+## File System Organization
+
+- First, each sector/block is numbered from 0, 1, ...
+- The larger the disk, the more sectors there are
+- Then, the file system contains the following components:
+    - **Superblock:** Contains metadata about the file system and the size is OS dependant
+    - **Inode Table:** An array of inode structs where each struct contains info of a file (e.g., size, owner ID, last modification) and each inode as an identification number which is also the index into the inode table
+    - **Data Area:** Contains the file content and each file can be ≥ 1 block
+
+## Creating a New File
+
+Let us create a file called "newfile" that is 12KB in size, and a disk block is 4KB.
+
+First, we need a free inode to put the file metadata, and then we need to find 3 free disk blocks to put the actual data.
+
+1. Make inode
+    - Inode at index 47 has metadata (perms, mod data, etc.) and a list of data blocks: 2, 20, 100
+2. Copy data into the blocks 2, 20, and 100 in that order
+3. Make a directory entry:
+
+| inode # | file    |
+| ------- | ------- |
+| 123     | Foo.zip |
+| 2       | Bar.txt |
+| 47      | newfile |
+
+
+
 
 
 
