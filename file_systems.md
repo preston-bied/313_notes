@@ -53,22 +53,16 @@ Key components:
 - **Root Directory:** Think of the file system as a tree whose root is the root directory often denoted by the `/`
 - **Absolute Path:** A path starting from the root `/`
 - **Relative Path:** A path relative to the *current working directory* and does not start with a `/`
+- **Hard Link:** The mapping between the name and the underlying file
+    - There can be multiple hard links to the same file (e.g., short cuts)
+    - Means that the directory tree is *not always a tree*
+- **Volume:** A logical representation of the disk drive that contains a single file system (i.e., a single directory tree)
+    - E.g., A USB drive contains a file system (if there is only 1 volume in it). Each logical drive in your device has a seperate file system.
+- **Mounting:** Mounting a volume creates a mapping from some path in an existing file system to the root directory of the mounted volume's file system.
 
-## File System "Tree"
+## UNIX Directory API
 
-**Hard Link:** The mapping between the name and the underlying file
-- There can be multiple hard links to the same file (e.g., short cuts)
-- Means that the directory tree is *not always a tree*
-
-## File System Terms
-
-**Volume:** A logical representation of the disk drive that contains a single file system (i.e., a single directory tree)
-
-E.g., A USB drive contains a file system (if there is only 1 volume in it). Each logical drive in your device has a seperate file system.
-
-**Mounting:** Mounting a volume creates a mapping from some path in an existing file system to the root directory of the mounted volume's file system.
-
-## UNIX Directory API: Current Directory
+### Current Directory
 
 ```c++
 #include <unistd.h>
@@ -91,7 +85,7 @@ void main(void) {
 }
 ```
 
-
+### Open, Read, Close
 
 
 
